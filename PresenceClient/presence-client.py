@@ -1,65 +1,53 @@
-import argparse
 import sys
 import json
+import argparse
 import socket
 import struct
 import time
 import re
+from unicodedata import name
 import requests
+import configparser
 from pypresence import Presence
+
+config = configparser.ConfigParser()
+config.read('settings.ini')
+ip = config['main']['ip']
+clientid = config['main']['clientid']
 
 TCP_PORT = 0xCAFE
 PACKETMAGIC = 0xFFAADD23
 
 parser = argparse.ArgumentParser()
-parser.add_argument('ip', help='The IP address of your device')
-parser.add_argument('client_id', help='The Client ID of your Discord Rich Presence application')
 parser.add_argument('--ignore-home-screen', dest='ignore_home_screen', action='store_true', help='Don\'t display the home screen. Defaults to false if missing this flag.')
-
-questOverrides = None
-switchOverrides = None
-
-try: 
-    questOverrides = json.loads(requests.get("https://raw.githubusercontent.com/Sun-Research-University/PresenceClient/master/Resource/QuestApplicationOverrides.json").text)
-    switchOverrides = json.loads(requests.get("https://raw.githubusercontent.com/Sun-Research-University/PresenceClient/master/Resource/SwitchApplicationOverrides.json").text)
-except:
-    print('Failed to retrieve Override files')
-    exit()
 
 #Defines a title packet
 class Title:
 
     def __init__(self, raw_data):
-        unpacker = struct.Struct('2L612s')
+        unpacker = struct.Struct('4L612s')
         enc_data = unpacker.unpack(raw_data)
         self.magic = int(enc_data[0])
-        if int(enc_data[1]) == 0:
+        #print(enc_data)
+        if int(enc_data[3]) == 0:
             self.pid = int(enc_data[1])
             self.name = 'Home Menu'
+            self.url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Nintendo_Switch_Logo_%28without_text%29.svg/480px-Nintendo_Switch_Logo_%28without_text%29.svg.png'
         else:
             self.pid = int(enc_data[1])
-            self.name = enc_data[2].decode('utf-8', 'ignore').split('\x00')[0]
-        if int(enc_data[0]) == PACKETMAGIC:
-            if self.name in questOverrides:
-                if questOverrides[self.name]['CustomName'] != '':
-                    self.name = questOverrides[self.name]['CustomName']
-        else:
-            if self.name in switchOverrides:
-                if switchOverrides[self.name]['CustomName'] != '':
-                    self.name = switchOverrides[self.name]['CustomName']
+            self.name = enc_data[4].decode('utf-8', 'ignore').split('\x00')[0]
+            self.url = "https://assets.nintendo.com/image/upload/ar_1.0,c_scale,g_north_west,w_350/v1/ncom/en_US/games/switch/%s/%s-switch/hero" %(self.name[0], format(self.name).replace(' ', '-'))
 
 
 def main():
     consoleargs = parser.parse_args()
-
-    switch_ip = consoleargs.ip
-    client_id = consoleargs.client_id
+    switch_ip = ip
 
     if not checkIP(switch_ip):
         print('Invalid IP')
         exit()
 
-    rpc = Presence(str(client_id))
+    rpc = Presence(str(clientid))
     try:
         rpc.connect()
         rpc.clear()
@@ -99,6 +87,7 @@ def main():
         if title.magic == PACKETMAGIC:
             if lastProgramName != title.name:
                 startTimer = int(time.time())
+                print("Now playing", title.name)
             if consoleargs.ignore_home_screen and title.name == 'Home Menu':
                 rpc.clear()
             else:
@@ -108,32 +97,16 @@ def main():
                 largeimagetext = title.name
                 if int(title.pid) != PACKETMAGIC:
                     smallimagetext = 'SwitchPresence-Rewritten'
-                    if title.name not in switchOverrides:
-                        largeimagekey = iconFromPid(title.pid)
-                        details = 'Playing ' + str(title.name)
-                    else:
-                        orinfo = switchOverrides[title.name]
-                        largeimagekey = orinfo['CustomKey'] or iconFromPid(title.pid)
-                        details = orinfo['CustomPrefix'] or 'Playing'
-                        details += ' ' + title.name
-                else:
-                    smallimagetext = 'QuestPresence'
-                    if title.name not in questOverrides:
-                        largeimagekey = title.name.lower().replace(' ', '')
-                        details = 'Playing ' + title.name
-                    else:
-                        orinfo = questOverrides[title.name]
-                        largeimagekey = orinfo['CustomKey'] or title.name.lower().replace(
-                            ' ', '')
-                        details = orinfo['CustomPrefix'] or 'Playing'
-                        details += ' ' + title.name
+                    largeimagekey = iconFromPid(title.pid)
+                    details = 'Playing ' + str(title.name)
                 if not title.name:
                     title.name = ''
                 lastProgramName = title.name
-                rpc.update(details=details, start=startTimer, large_image=largeimagekey,
+                rpc.update(details=details, start=startTimer, large_image=title.url,
                         large_text=largeimagetext, small_text=smallimagetext)
             time.sleep(1)
         else:
+            print("Closing...")
             time.sleep(1)
             rpc.clear()
             rpc.close()

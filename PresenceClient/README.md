@@ -20,20 +20,13 @@ Then just run the following command in the same directory as your ```presence-cl
 python presence-client.py (arguments...)
 ```
 ### Arguments
-`ip` The IP address of your device.
 
-`client_id` The Client ID of your Discord Rich Presence application.
-
-`--ignore-home-screen` Don't display the home screen.
+`--ignore-home-screen` Don't display the home screen as a status
 
 Run the help command with `-h` or `--help`
 
 ```sh
-usage: presence-client.py [-h] [--ignore-home-screen] ip client_id
-
-positional arguments:
-  ip                    The IP address of your device.
-  client_id             The Client ID of your Discord Rich Presence application.
+usage: presence-client.py [-h] [--ignore-home-screen]
 
 optional arguments:
   -h, --help            show this help message and exit
