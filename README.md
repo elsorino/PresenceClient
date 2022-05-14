@@ -1,14 +1,34 @@
-# PresenceClient
-Set your Discord rich presence using [SwitchPresence-Rewritten](https://github.com/HeadpatServices/SwitchPresence-Rewritten) or [QuestPresence](https://github.com/HeadpatServices/QuestPresence) running this app on your PC.
+# Running with Python
+[![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=for-the-badge&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
 
-# Setup
-Simply Create an application at the [Discord Developer Portal](https://discordapp.com/developers/applications/) call your application `Nintendo Switch`, `Oculus Quest` or whatever you would like and then enter your client ID and Device's IP into PresenceClient!<br>
+# Requirements
+Follow [setup](https://github.com/Sun-Research-University/PresenceClient/blob/master/README.md) found here
 
-If you're using QuestPresence, your icon name will be the application name in all lower capitalization with no spaces with the exception of some applications you can take a look [here](https://github.com/HeadpatServices/PresenceClient/blob/master/Resource/QuestApplicationOverrides.json) for those exceptions, you will want to take of a note of the `CustomName` field and format using the above instructions for your icon name. Sometimes an app can have a `CustomKey` field that is filled out, you will want to use this instead of the formatted `CustomName`.
+Download and install the [latest version of Python](https://www.python.org/downloads/) for your platform
+### Use pip to install requirements
+Just run the following command
+```sh
+pip install pypresence
+```
+:warning: **If you plan on running this headlessly,** be aware for any rich presence application to work, the client must also be running an instance of the [Discord](https://discord.com/download) client.
 
-If you're using SwitchPresence, your icon name will the application title ID, these icons can be dumped from the manager app included in the SwitchPresence release, the dumped icons will be formatted for you to upload directly to your discord developer application.
+# Usage
+Download the latest ```presence-client.py``` file in the [Releases](https://github.com/Sun-Research-University/PresenceClient/releases) tab
 
-Finally to connect you will need your device's IP for QuestPresence this will be on main application page and for SwitchPresence you will have to find it in the connection settings of the switch.
+Then just run the following command in the same directory as your ```presence-client.py``` file
+```sh
+python presence-client.py (arguments...)
+```
+### Arguments
 
-# Support
-If you still need further asstiance you can find us on [Discord](https://link.headpat.services/discord)!
+`--ignore-home-screen` Don't display the home screen as a status
+
+Run the help command with `-h` or `--help`
+
+```sh
+usage: presence-client.py [-h] [--ignore-home-screen]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --ignore-home-screen  Dont display the home screen. Defaults to false if missing this flag.
+```
