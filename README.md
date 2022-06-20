@@ -1,3 +1,6 @@
+Show what game you're playing without having to upload art assets or deal with Discord developer settings
+![image](https://user-images.githubusercontent.com/30331607/174506218-8770b3f5-c173-4a0f-9d40-19663275de79.png)
+
 # Running with Python
 [![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=for-the-badge&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
 
